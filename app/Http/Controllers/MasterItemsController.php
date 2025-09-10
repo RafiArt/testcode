@@ -25,17 +25,14 @@ class MasterItemsController extends Controller
 
             $data_search = MasterItem::with('categories');
 
-            // Filter berdasarkan kode
             if (!empty($kode)) {
                 $data_search = $data_search->where('kode', 'LIKE', '%' . $kode . '%');
             }
 
-            // Filter berdasarkan nama
             if (!empty($nama)) {
                 $data_search = $data_search->where('nama', 'LIKE', '%' . $nama . '%');
             }
 
-            // Filter berdasarkan harga
             if (!empty($hargamin) && !empty($hargamax)) {
                 $data_search = $data_search->whereBetween('harga_beli', [$hargamin, $hargamax]);
             } elseif (!empty($hargamin)) {
@@ -121,13 +118,11 @@ class MasterItemsController extends Controller
             }
 
             if ($request->hasFile('foto')) {
-                // Pastikan folder public/storage/foto_items ada
                 $uploadPath = public_path('storage/foto_items');
                 if (!file_exists($uploadPath)) {
                     mkdir($uploadPath, 0755, true);
                 }
 
-                // Hapus foto lama jika ada
                 if ($data_item->foto && file_exists(public_path('storage/foto_items/' . $data_item->foto))) {
                     unlink(public_path('storage/foto_items/' . $data_item->foto));
                 }
@@ -135,7 +130,6 @@ class MasterItemsController extends Controller
                 $foto = $request->file('foto');
                 $fotoName = time() . '_' . $foto->getClientOriginalName();
 
-                // Pindahkan file ke public/storage/foto_items
                 $foto->move($uploadPath, $fotoName);
                 $data_item->foto = $fotoName;
             }
@@ -149,7 +143,6 @@ class MasterItemsController extends Controller
             $data_item->jenis = $request->jenis;
             $data_item->save();
 
-            // Sync categories
             if ($request->has('categories')) {
                 $data_item->categories()->sync($request->categories);
             } else {
@@ -170,7 +163,6 @@ class MasterItemsController extends Controller
         try {
             $item = MasterItem::findOrFail($id);
 
-            // Hapus foto jika ada
             if ($item->foto && file_exists(public_path('storage/foto_items/' . $item->foto))) {
                 unlink(public_path('storage/foto_items/' . $item->foto));
             }

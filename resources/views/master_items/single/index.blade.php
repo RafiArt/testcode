@@ -12,7 +12,6 @@
             <div class="card-body">
                 @if($data->foto)
                 <div class="text-center mb-4">
-                    <!-- PERBAIKAN: Gunakan url() bukan asset() -->
                     <img src="{{ Storage::url('foto_items/' . $data->foto) }}"
                          alt="Foto Item"
                          class="img-fluid rounded"

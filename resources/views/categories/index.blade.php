@@ -51,15 +51,12 @@
 
 <script>
 function filterCategories() {
-    // Ambil nilai dari input filter
     const kodeFilter = document.getElementById('filterKode').value.toUpperCase();
     const namaFilter = document.getElementById('filterNama').value.toUpperCase();
 
-    // Ambil semua baris dalam tabel
     const table = document.getElementById('categoriesTableBody');
     const rows = table.getElementsByTagName('tr');
 
-    // Loop melalui semua baris dan sembunyikan yang tidak sesuai dengan filter
     for (let i = 0; i < rows.length; i++) {
         const kodeCell = rows[i].getElementsByTagName('td')[0];
         const namaCell = rows[i].getElementsByTagName('td')[1];
@@ -68,11 +65,9 @@ function filterCategories() {
             const kodeValue = kodeCell.textContent || kodeCell.innerText;
             const namaValue = namaCell.textContent || namaCell.innerText;
 
-            // Periksa apakah baris memenuhi kriteria filter
             const kodeMatch = kodeValue.toUpperCase().indexOf(kodeFilter) > -1;
             const namaMatch = namaValue.toUpperCase().indexOf(namaFilter) > -1;
 
-            // Tampilkan atau sembunyikan baris berdasarkan filter
             if (kodeMatch && namaMatch) {
                 rows[i].style.display = "";
             } else {

@@ -24,7 +24,6 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-// Master Items Routes
 Route::get('/master-items', [MasterItemsController::class, 'index']);
 Route::get('/master-items/search', [MasterItemsController::class, 'search']);
 Route::get('/master-items/form/{method}/{id?}', [MasterItemsController::class, 'formView']);
