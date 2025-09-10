@@ -27,7 +27,6 @@
                     </tr>
                 </thead>
                 <tbody id="categoriesTableBody">
-                    <!-- Data akan difilter melalui JavaScript -->
                     @foreach($categories as $category)
                     <tr>
                         <td>{{ $category->kode }}</td>
@@ -35,7 +34,12 @@
                         <td>
                             <a href="{{ url('categories/view') }}/{{ $category->id }}" class="btn btn-sm btn-info">View</a>
                             <a href="{{ url('categories/form/edit') }}/{{ $category->id }}" class="btn btn-sm btn-warning">Edit</a>
-                            <a href="{{ url('categories/delete') }}/{{ $category->id }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                            <form action="{{ url('categories/delete/' . $category->id) }}" method="POST" class="d-inline" id="delete-form-{{ $category->id }}">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+
+                            <a href="#" class="btn btn-sm btn-danger" onclick="event.preventDefault(); if(confirm('Are you sure?')) { document.getElementById('delete-form-{{ $category->id }}').submit(); }">Delete</a>
                         </td>
                     </tr>
                     @endforeach

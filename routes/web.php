@@ -30,13 +30,12 @@ Route::get('/master-items/search', [MasterItemsController::class, 'search']);
 Route::get('/master-items/form/{method}/{id?}', [MasterItemsController::class, 'formView']);
 Route::post('/master-items/form/{method}/{id?}', [MasterItemsController::class, 'formSubmit']);
 Route::get('/master-items/view/{kode}', [MasterItemsController::class, 'singleView']);
-Route::get('/master-items/delete/{id}', [MasterItemsController::class, 'delete']);
+Route::delete('/master-items/delete/{id}', [MasterItemsController::class, 'destroy']);
 Route::get('/master-items/update-random-data', [MasterItemsController::class, 'updateRandomData']);
 
-// Categories Routes (Baru - untuk CRUD Kategori Items)
 Route::get('/categories', [CategoriesController::class, 'index']);
 Route::get('/categories/search', [CategoriesController::class, 'search']);
 Route::get('/categories/form/{method}/{id?}', [CategoriesController::class, 'formView']);
 Route::post('/categories/form/{method}/{id?}', [CategoriesController::class, 'formSubmit']);
 Route::get('/categories/view/{id}', [CategoriesController::class, 'singleView']);
-Route::get('/categories/delete/{id}', [CategoriesController::class, 'delete']);
+Route::delete('/categories/delete/{id}', [CategoriesController::class, 'delete']);

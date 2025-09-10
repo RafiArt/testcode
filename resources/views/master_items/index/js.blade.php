@@ -1,10 +1,7 @@
-<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
-
 <script>
     $(document).ready(function() {
-        // Inisialisasi DataTable
+        console.log('Image URL:', window.APP_CONFIG.imageUrl);
+
         var dataTable = $('#table').DataTable({
             searching: false,
             order: [[0, 'desc']],
@@ -28,24 +25,31 @@
                 {
                     data: 'foto',
                     render: function(data, type, row) {
-                        if (data) {
-                            // PERBAIKAN PATH FOTO
-                            return '<img src="{{ asset("storage/foto_items") }}/' + data + '" width="50" height="50" class="img-thumbnail" style="object-fit: cover;">';
+                        if (data && data.trim() !== '') {
+                            var imageUrl = window.APP_CONFIG.imageUrl + '/' + data;
+                            console.log('Loading image:', imageUrl);
+
+                            return '<img src="' + imageUrl + '" ' +
+                                   'width="50" height="50" ' +
+                                   'class="img-thumbnail" ' +
+                                   'style="object-fit: cover;" ' +
+                                   'onerror="this.onerror=null; this.src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yNSAyMEMyNi4xIDIwIDI3IDIwLjkgMjcgMjJDMjcgMjMuMSAyNi4xIDI0IDI1IDI0QzIzLjkgMjQgMjMgMjMuMSAyMyAyMkMyMyAyMC45IDIzLjkgMjAgMjUgMjBaTTE1IDEySDM1QzM2LjEgMTIgMzcgMTIuOSAzNyAxNFYzNkMzNyAzNy4xIDM2LjEgMzggMzUgMzhIMTVDMTMuOSAzOCAxMyAzNy4xIDEzIDM2VjE0QzEzIDEyLjkgMTMuOSAxMiAxNSAxMlpNMTUgMzZIMzVWMTRIMTVWMzZaTTE5IDI4TDIyIDMxTDI3IDI2TDMzIDMySDI3SDE3TDE5IDI4WiIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K\'; this.title=\'Image not found: ' + data + '\';">';
                         }
-                        return '-';
+                        return '<div class="d-flex align-items-center justify-content-center bg-light" style="width:50px;height:50px;border:1px solid #ddd;"><small class="text-muted">No Image</small></div>';
                     }
                 },
                 {
                     data: 'action',
                     render: function(data, type, row) {
-                        return '<a href="{{url("master-items/view")}}/' + row.kode + '" class="btn btn-primary btn-sm">View</a>';
+                        return '<a href="' + window.APP_CONFIG.masterItemUrl + '/view/' + row.kode + '" class="btn btn-primary btn-sm">View</a>';
                     }
                 }
             ]
         });
 
-        // Fungsi format Rupiah
         function formatRupiah(angka) {
+            if (!angka) return 'Rp 0';
+
             var number_string = angka.toString(),
                 split = number_string.split(','),
                 sisa = split[0].length % 3,
@@ -61,12 +65,10 @@
             return 'Rp ' + rupiah;
         }
 
-        // Event handler untuk tombol filter
         $('.btn-get-data').click(function() {
             getData();
         });
 
-        // Fungsi untuk mengambil data
         function getData() {
             $('#loading-filter').show();
             dataTable.clear().draw();
@@ -77,7 +79,7 @@
             var filter_harga_max = $('#filter-harga-max').val();
 
             $.ajax({
-                url: '{{ url("master-items/search") }}',
+                url: window.APP_CONFIG.masterItemUrl + '/search',
                 method: 'GET',
                 dataType: 'json',
                 data: {
@@ -86,11 +88,10 @@
                     hargamin: filter_harga_min,
                     hargamax: filter_harga_max
                 },
-                tryCount: 0,
-                retryLimit: 3,
                 success: function(response) {
+                    console.log('Response received:', response);
+
                     if (response.status === 200) {
-                        // Format data untuk DataTable
                         var formattedData = response.data.map(function(item) {
                             var harga_jual = item.harga_beli + (item.harga_beli * item.laba / 100);
                             harga_jual = Math.round(harga_jual);
@@ -112,18 +113,27 @@
                     $('#loading-filter').hide();
                 },
                 error: function(xhr, textStatus, errorThrown) {
-                    this.tryCount++;
-                    if (this.tryCount <= this.retryLimit) {
-                        $.ajax(this);
-                        return;
-                    }
+                    console.error('Ajax Error:', xhr.responseText);
                     alert('Terjadi kesalahan server, tidak dapat mengambil data');
                     $('#loading-filter').hide();
                 }
             });
         }
 
-        // Load data pertama kali
+        function testImageAccess() {
+            var testUrl = window.APP_CONFIG.imageUrl + '/test.jpg';
+            var img = new Image();
+            img.onload = function() {
+                console.log('✓ Image access working: ' + testUrl);
+            };
+            img.onerror = function() {
+                console.log('✗ Cannot access images at: ' + testUrl);
+                console.log('Please check if folder exists: public/storage/foto_items/');
+            };
+            img.src = testUrl;
+        }
+
+        testImageAccess();
         getData();
     });
 </script>

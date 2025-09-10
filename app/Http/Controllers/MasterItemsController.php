@@ -121,14 +121,22 @@ class MasterItemsController extends Controller
             }
 
             if ($request->hasFile('foto')) {
+                // Pastikan folder public/storage/foto_items ada
+                $uploadPath = public_path('storage/foto_items');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
                 // Hapus foto lama jika ada
-                if ($data_item->foto && Storage::exists('public/foto_items/' . $data_item->foto)) {
-                    Storage::delete('public/foto_items/' . $data_item->foto);
+                if ($data_item->foto && file_exists(public_path('storage/foto_items/' . $data_item->foto))) {
+                    unlink(public_path('storage/foto_items/' . $data_item->foto));
                 }
 
                 $foto = $request->file('foto');
                 $fotoName = time() . '_' . $foto->getClientOriginalName();
-                $foto->storeAs('public/foto_items', $fotoName);
+
+                // Pindahkan file ke public/storage/foto_items
+                $foto->move($uploadPath, $fotoName);
                 $data_item->foto = $fotoName;
             }
 
@@ -157,27 +165,21 @@ class MasterItemsController extends Controller
         }
     }
 
-    public function delete($id)
+    public function destroy($id)
     {
         try {
             $item = MasterItem::findOrFail($id);
 
             // Hapus foto jika ada
-            if ($item->foto && Storage::exists('public/foto_items/' . $item->foto)) {
-                Storage::delete('public/foto_items/' . $item->foto);
+            if ($item->foto && file_exists(public_path('storage/foto_items/' . $item->foto))) {
+                unlink(public_path('storage/foto_items/' . $item->foto));
             }
 
-            // Hapus relasi kategori
-            $item->categories()->detach();
-
-            // Soft delete
             $item->delete();
-
             return redirect('master-items')->with('success', 'Item berhasil dihapus');
-
         } catch (\Exception $e) {
-            Log::error('Error in delete: ' . $e->getMessage());
-            return redirect('master-items')->with('error', 'Terjadi kesalahan dalam menghapus data');
+            Log::error('Error in destroy: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan dalam menghapus data');
         }
     }
 
@@ -221,7 +223,7 @@ class MasterItemsController extends Controller
      */
     public function getPhoto($filename)
     {
-        $path = storage_path('app/public/foto_items/' . $filename);
+        $path = public_path('storage/foto_items/' . $filename);
 
         if (!file_exists($path)) {
             abort(404);
